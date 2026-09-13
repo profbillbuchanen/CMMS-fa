@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}دستور کار - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">🔧 لیست دستورهای کار</h1>
+</div>
+
+<!-- Filters -->
+<div class="card fade-in" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="width: 200px;">
+                <select name="status" class="form-control form-select">
+                    <option value="">همه وضعیت‌ها</option>
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">🔍 فیلتر</button>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container fade-in">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>عنوان</th>
+                    <th>درخواست</th>
+                    <th>تجهیز</th>
+                    <th>تکنسین</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ ایجاد</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wo in work_orders %}
+                <tr>
+                    <td>{{ wo.title }}</td>
+                    <td>{{ wo.request.title }}</td>
+                    <td>{{ wo.request.asset.name }}</td>
+                    <td>{{ wo.technician.get_full_name|default:wo.technician.username|default:"-"  }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if wo.status == 'open' %}badge-info
+                            {% elif wo.status == 'in_progress' %}badge-warning
+                            {% elif wo.status == 'on_hold' %}badge-secondary
+                            {% else %}badge-success{% endif %}">
+                            {{ wo.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ wo.created_at|date:"Y/m/d" }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'admin:core_workorder_change' wo.pk %}" class="btn-icon btn-icon-primary" title="ویرایش">✏️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">هیچ دستور کاری یافت نشد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
