@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}قطعات یدکی - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">📦 لیست قطعات یدکی</h1>
+    <a href="{% url 'admin:core_sparepart_add' %}" class="btn btn-primary">➕ افزودن قطعه جدید</a>
+</div>
+
+<!-- Search -->
+<div class="card fade-in" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem;">
+            <div style="flex: 1;">
+                <input type="text" name="search" class="form-control" placeholder="جستجو بر اساس نام یا شماره قطعه..." value="{{ request.GET.search }}">
+            </div>
+            <button type="submit" class="btn btn-secondary">🔍 جستجو</button>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container fade-in">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>نام قطعه</th>
+                    <th>شماره قطعه</th>
+                    <th>موجودی</th>
+                    <th>حداقل موجودی</th>
+                    <th>واحد</th>
+                    <th>محل ذخیره</th>
+                    <th>تامین‌کننده</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in parts %}
+                <tr>
+                    <td>{{ part.name }}</td>
+                    <td>{{ part.part_number }}</td>
+                    <td style="direction: ltr; text-align: right;">{{ part.quantity }} {{ part.unit }}</td>
+                    <td style="direction: ltr; text-align: right;">{{ part.min_quantity }}</td>
+                    <td>{{ part.unit }}</td>
+                    <td>{{ part.location|default:"-" }}</td>
+                    <td>{{ part.supplier|default:"-" }}</td>
+                    <td>
+                        {% if part.is_low_stock %}
+                            <span class="badge badge-danger">⚠️ موجودی کم</span>
+                        {% else %}
+                            <span class="badge badge-success">✓ کافی</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'admin:core_sparepart_change' part.pk %}" class="btn-icon btn-icon-primary" title="ویرایش">✏️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 2rem;">هیچ قطعه‌ای یافت نشد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

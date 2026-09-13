@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}درخواست‌ها - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">📝 لیست درخواست‌های تعمیر</h1>
+    <a href="{% url 'admin:core_maintenancerequest_add' %}" class="btn btn-primary">➕ ثبت درخواست جدید</a>
+</div>
+
+<!-- Filters -->
+<div class="card fade-in" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="width: 200px;">
+                <select name="status" class="form-control form-select">
+                    <option value="">همه وضعیت‌ها</option>
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="width: 200px;">
+                <select name="priority" class="form-control form-select">
+                    <option value="">همه اولویت‌ها</option>
+                    {% for value, label in priorities %}
+                    <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">🔍 فیلتر</button>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container fade-in">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>عنوان</th>
+                    <th>تجهیز</th>
+                    <th>درخواست‌دهنده</th>
+                    <th>اولویت</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ ثبت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.title }}</td>
+                    <td>{{ req.asset.name }}</td>
+                    <td>{{ req.requester.get_full_name|default:req.requester.username }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if req.priority == 'low' %}badge-success
+                            {% elif req.priority == 'medium' %}badge-info
+                            {% elif req.priority == 'high' %}badge-warning
+                            {% else %}badge-danger{% endif %}">
+                            {{ req.get_priority_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if req.status == 'pending' %}badge-warning
+                            {% elif req.status == 'approved' %}badge-info
+                            {% elif req.status == 'in_progress' %}badge-primary
+                            {% elif req.status == 'completed' %}badge-success
+                            {% else %}badge-secondary{% endif %}">
+                            {{ req.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ req.get_jalali_created_at }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'core:request_detail' req.pk %}" class="btn-icon btn-icon-primary" title="مشاهده">👁️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">هیچ درخواستی یافت نشد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

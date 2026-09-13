@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}داشبورد - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">📊 داشبورد مدیریت</h1>
+    <button class="btn btn-primary" onclick="location.reload()">
+        🔄 به‌روزرسانی
+    </button>
+</div>
+
+<!-- Dashboard Statistics -->
+<div class="dashboard-grid fade-in">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value">{{ total_assets }}</div>
+                <div class="stat-card-label">کل تجهیزات</div>
+            </div>
+            <div class="stat-card-icon primary">🏭</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value">{{ pending_requests }}</div>
+                <div class="stat-card-label">درخواست‌های در انتظار</div>
+            </div>
+            <div class="stat-card-icon warning">📝</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value">{{ in_progress_orders }}</div>
+                <div class="stat-card-label">دستور کار در حال انجام</div>
+            </div>
+            <div class="stat-card-icon info">🔧</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value">{{ low_stock_parts }}</div>
+                <div class="stat-card-label">قطعات با موجودی کم</div>
+            </div>
+            <div class="stat-card-icon danger">⚠️</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Requests -->
+<div class="card fade-in">
+    <div class="card-header">
+        <h2 class="card-title">📋 آخرین درخواست‌های تعمیر</h2>
+        <a href="{% url 'core:requests' %}" class="btn btn-secondary">مشاهده همه</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>تجهیز</th>
+                        <th>اولویت</th>
+                        <th>وضعیت</th>
+                        <th>تاریخ ثبت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in recent_requests %}
+                    <tr>
+                        <td>{{ request.title }}</td>
+                        <td>{{ request.asset.name }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if request.priority == 'low' %}badge-success
+                                {% elif request.priority == 'medium' %}badge-info
+                                {% elif request.priority == 'high' %}badge-warning
+                                {% else %}badge-danger{% endif %}">
+                                {{ request.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if request.status == 'pending' %}badge-warning
+                                {% elif request.status == 'approved' %}badge-info
+                                {% elif request.status == 'in_progress' %}badge-primary
+                                {% elif request.status == 'completed' %}badge-success
+                                {% else %}badge-secondary{% endif %}">
+                                {{ request.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ request.get_jalali_created_at }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'core:request_detail' request.pk %}" class="btn-icon btn-icon-primary" title="مشاهده">👁️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem;">هیچ درخواستی یافت نشد</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Equipment Status Overview -->
+<div class="card fade-in">
+    <div class="card-header">
+        <h2 class="card-title">🏭 وضعیت تجهیزات</h2>
+    </div>
+    <div class="card-body">
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stat-card" style="text-align: center;">
+                <div class="stat-card-value status-active">{{ active_assets }}</div>
+                <div class="stat-card-label">فعال</div>
+            </div>
+            <div class="stat-card" style="text-align: center;">
+                <div class="stat-card-value status-maintenance">{{ maintenance_assets }}</div>
+                <div class="stat-card-label">در حال تعمیر</div>
+            </div>
+            <div class="stat-card" style="text-align: center;">
+                <div class="stat-card-value status-broken">{{ broken_assets }}</div>
+                <div class="stat-card-label">خراب</div>
+            </div>
+            <div class="stat-card" style="text-align: center;">
+                <div class="stat-card-value status-inactive">{{ inactive_assets }}</div>
+                <div class="stat-card-label">غیرفعال</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

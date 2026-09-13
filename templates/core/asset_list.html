@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}تجهیزات - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">🏭 لیست تجهیزات</h1>
+    <a href="{% url 'admin:core_asset_add' %}" class="btn btn-primary">➕ افزودن تجهیز جدید</a>
+</div>
+
+<!-- Filters -->
+<div class="card fade-in" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="search" class="form-control" placeholder="جستجو..." value="{{ request.GET.search }}">
+            </div>
+            <div style="width: 200px;">
+                <select name="status" class="form-control form-select">
+                    <option value="">همه وضعیت‌ها</option>
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">🔍 جستجو</button>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container fade-in">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>کد</th>
+                    <th>دسته‌بندی</th>
+                    <th>موقعیت</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets %}
+                <tr>
+                    <td>{{ asset.name }}</td>
+                    <td>{{ asset.code }}</td>
+                    <td>{{ asset.category|default:"-" }}</td>
+                    <td>{{ asset.location|default:"-" }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if asset.status == 'active' %}badge-success
+                            {% elif asset.status == 'inactive' %}badge-secondary
+                            {% elif asset.status == 'maintenance' %}badge-warning
+                            {% else %}badge-danger{% endif %}">
+                            {{ asset.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'admin:core_asset_change' asset.pk %}" class="btn-icon btn-icon-primary" title="ویرایش">✏️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem;">هیچ تجهیزی یافت نشد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

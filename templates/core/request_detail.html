@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}جزئیات درخواست - سیستم CMMS{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1 class="page-title">📋 جزئیات درخواست تعمیر</h1>
+    <div class="action-buttons">
+        <a href="{% url 'core:requests' %}" class="btn btn-secondary">🔙 بازگشت</a>
+        <a href="{% url 'admin:core_maintenancerequest_change' request_obj.pk %}" class="btn btn-primary">✏️ ویرایش</a>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2 class="card-title">اطلاعات درخواست</h2>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; gap: 1rem;">
+                <div>
+                    <strong>عنوان:</strong>
+                    <p>{{ request_obj.title }}</p>
+                </div>
+                <div>
+                    <strong>شرح مشکل:</strong>
+                    <p style="white-space: pre-wrap;">{{ request_obj.description }}</p>
+                </div>
+                <div>
+                    <strong>درخواست‌دهنده:</strong>
+                    <p>{{ request_obj.requester.get_full_name|default:request_obj.requester.username }}</p>
+                </div>
+                <div>
+                    <strong>تاریخ ثبت:</strong>
+                    <p>{{ request_obj.get_jalali_created_at }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2 class="card-title">وضعیت</h2>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; gap: 1rem;">
+                <div>
+                    <strong>اولویت:</strong>
+                    <p>
+                        <span class="badge 
+                            {% if request_obj.priority == 'low' %}badge-success
+                            {% elif request_obj.priority == 'medium' %}badge-info
+                            {% elif request_obj.priority == 'high' %}badge-warning
+                            {% else %}badge-danger{% endif %}">
+                            {{ request_obj.get_priority_display }}
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <strong>وضعیت:</strong>
+                    <p>
+                        <span class="badge 
+                            {% if request_obj.status == 'pending' %}badge-warning
+                            {% elif request_obj.status == 'approved' %}badge-info
+                            {% elif request_obj.status == 'in_progress' %}badge-primary
+                            {% elif request_obj.status == 'completed' %}badge-success
+                            {% else %}badge-secondary{% endif %}">
+                            {{ request_obj.get_status_display }}
+                        </span>
+                    </p>
+                </div>
+                {% if request_obj.assigned_to %}
+                <div>
+                    <strong>مسئول اجرا:</strong>
+                    <p>{{ request_obj.assigned_to.get_full_name|default:request_obj.assigned_to.username }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card fade-in">
+    <div class="card-header">
+        <h2 class="card-title">🏭 اطلاعات تجهیز</h2>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+                <strong>نام تجهیز:</strong>
+                <p>{{ request_obj.asset.name }}</p>
+            </div>
+            <div>
+                <strong>کد تجهیز:</strong>
+                <p>{{ request_obj.asset.code }}</p>
+            </div>
+            <div>
+                <strong>دسته‌بندی:</strong>
+                <p>{{ request_obj.asset.category|default:"-" }}</p>
+            </div>
+            <div>
+                <strong>موقعیت:</strong>
+                <p>{{ request_obj.asset.location|default:"-" }}</p>
+            </div>
+            <div>
+                <strong>وضعیت تجهیز:</strong>
+                <p>
+                    <span class="badge 
+                        {% if request_obj.asset.status == 'active' %}badge-success
+                        {% elif request_obj.asset.status == 'inactive' %}badge-secondary
+                        {% elif request_obj.asset.status == 'maintenance' %}badge-warning
+                        {% else %}badge-danger{% endif %}">
+                        {{ request_obj.asset.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

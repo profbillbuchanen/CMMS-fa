@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}سیستم مدیریت تعمیر و نگهداری{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <span class="logo-icon">⚙️</span>
+                    <span>سیستم CMMS</span>
+                </a>
+                
+                <nav class="nav-menu">
+                    <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                        📊 داشبورد
+                    </a>
+                    <a href="{% url 'core:assets' %}" class="nav-link {% if 'asset' in request.path %}active{% endif %}">
+                        🏭 تجهیزات
+                    </a>
+                    <a href="{% url 'core:requests' %}" class="nav-link {% if 'request' in request.path %}active{% endif %}">
+                        📝 درخواست‌ها
+                    </a>
+                    <a href="{% url 'core:work_orders' %}" class="nav-link {% if 'work-order' in request.path %}active{% endif %}">
+                        🔧 دستور کار
+                    </a>
+                    <a href="{% url 'core:spare_parts' %}" class="nav-link {% if 'spare' in request.path %}active{% endif %}">
+                        📦 قطعات یدکی
+                    </a>
+                </nav>
+                
+                <div class="user-menu">
+                    {% if user.is_authenticated %}
+                        <div class="user-avatar">👤</div>
+                        <span>{{ user.get_full_name|default:user.username }}</span>
+                    {% else %}
+                        <a href="{% url 'admin:index' %}" class="btn btn-secondary">ورود به پنل</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">© ۱۴۰۳ سیستم مدیریت تعمیر و نگهداری (CMMS)</p>
+                <p class="footer-text">طراحی شده با ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
